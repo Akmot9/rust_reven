@@ -1,0 +1,36 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 1  # Fetch enough history to perform all checks
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        components: rustfmt, clippy  # Add rustfmt and clippy to the toolchain
+        override: true
+
+    - name: Check formatting
+      run: cargo fmt -- --check
+
+    - name: Lint with clippy
+      run: cargo clippy -- -D warnings  # Treats all Clippy warnings as errors.
+
+    - name: Build
+      run: cargo build --verbose
+
+    - name: Run tests
+      run: cargo test --verbose
